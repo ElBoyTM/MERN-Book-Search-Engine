@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 import dotenv from 'dotenv';
+import { AuthenticationError } from 'apollo-server-express';
 dotenv.config();
 
 interface JwtPayload {
@@ -10,7 +11,7 @@ interface JwtPayload {
   email: string,
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = (req: Request, _res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
@@ -20,14 +21,14 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
     jwt.verify(token, secretKey, (err, user) => {
       if (err) {
-        return res.sendStatus(403); // Forbidden
+        throw new AuthenticationError('Invalid/Expired token');
       }
 
       req.user = user as JwtPayload;
       return next();
     });
   } else {
-    res.sendStatus(401); // Unauthorized
+    throw new AuthenticationError('Authorization header must be provided');
   }
 };
 
