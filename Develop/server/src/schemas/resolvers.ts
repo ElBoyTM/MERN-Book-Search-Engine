@@ -1,6 +1,6 @@
 import { AuthenticationError } from 'apollo-server-express';
 import User from '../models/User.js';
-import { authenticateToken } from '../services/auth.js';
+import { signToken } from '../services/auth.js';
 
 const resolvers = {
   Query: {
@@ -16,7 +16,7 @@ const resolvers = {
   Mutation: {
     addUser: async (_parent: any, args: any) => {
       const user = await User.create(args);
-      const token = authenticateToken(user);
+      const token = signToken(user.username, user.password, user._id);
       return { token, user };
     },
 
@@ -31,7 +31,7 @@ const resolvers = {
         throw new AuthenticationError('Wrong password!');
       }
 
-      const token = signToken(user);
+      const token = signToken(user.username, user.password, user._id);
       return { token, user };
     },
 
