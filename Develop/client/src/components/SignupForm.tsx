@@ -16,6 +16,8 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
+  const [addUser] = useMutation(ADD_USER);
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
@@ -32,7 +34,6 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
     }
 
     try {
-      const [addUser] = useMutation(ADD_USER);
 
       const { data } = await addUser({
         variables: { ...userFormData },
