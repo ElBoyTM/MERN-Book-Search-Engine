@@ -2,9 +2,10 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
-import { createUser } from '../utils/API';
 import Auth from '../utils/auth';
 import type { User } from '../models/User';
+import { ADD_USER } from '../utils/mutations';
+import { useMutation } from '@apollo/client';
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
 const SignupForm = ({}: { handleModalClose: () => void }) => {
@@ -31,13 +32,17 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
     }
 
     try {
-      const response = await createUser(userFormData);
+      const [addUser] = useMutation(ADD_USER);
 
-      if (!response.ok) {
+      const { data } = await addUser({
+        variables: { ...userFormData },
+      });
+
+      if (!data) {
         throw new Error('something went wrong!');
       }
 
-      const { token } = await response.json();
+      const { token } = data.addUser;
       Auth.login(token);
     } catch (err) {
       console.error(err);
