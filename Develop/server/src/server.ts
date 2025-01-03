@@ -1,37 +1,55 @@
 import express from 'express';
-import db from './config/connection.js';
-
-// Import the ApolloServer class
+import path from 'node:path';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
+import { json } from 'body-parser';
+import cors from 'cors';
 
-// Import the two parts of a GraphQL schema
-import { typeDefs, resolvers } from './schemas/index.js';
+import db from './config/connection.js';
+import { resolvers, typeDefs } from './schemas/index.js';
+import { authenticateToken } from './services/auth.js';
+import routes from './routes/index.js';
+
+const app = express();
+const PORT = process.env.PORT || 3001;
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
-// Create a new instance of an Apollo server with the GraphQL schema
-const startApolloServer = async () => {
+// Start the Apollo server
+await server.start();
 
-  await server.start();
-  await db.openUri(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdbname');
+// Middleware
+app.use(
+  '/graphql',
+  cors(),
+  json(),
+  expressMiddleware(server, {
+    context: async ({ req, res }) => {
+      try {
+        authenticateToken(req, res, () => {});
+        return { user: req.user };
+      } catch (error) {
+        return { user: null };
+      }
+    },
+  })
+);
 
-  const PORT = process.env.PORT || 3001;
-  const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-  app.use(express.urlencoded({ extended: false }));
-  app.use(express.json());
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+}
 
-  app.use('/graphql', expressMiddleware(server));
+// Other routes
+app.use('/api', routes);
 
-  app.listen(PORT, () => {
-    console.log(`API server running on port ${PORT}!`);
-    console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
-  });
-};
-
-// Call the async function to start the server
-startApolloServer();
+// Database connection and server startup
+db.once('open', () => {
+  app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
+});
