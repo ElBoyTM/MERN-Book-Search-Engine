@@ -1,55 +1,37 @@
 import express from 'express';
-import path from 'node:path';
+import db from './config/connection.js';
+
+// Import the ApolloServer class
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { json } from 'body-parser';
-import cors from 'cors';
 
-import db from './config/connection.js';
-import { resolvers, typeDefs } from './schemas/index.js';
-import { authenticateToken } from './services/auth.js';
-import routes from './routes/index.js';
-
-const app = express();
-const PORT = process.env.PORT || 3001;
+// Import the two parts of a GraphQL schema
+import { typeDefs, resolvers } from './schemas/index.js';
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
-// Start the Apollo server
-await server.start();
+// Create a new instance of an Apollo server with the GraphQL schema
+const startApolloServer = async () => {
 
-// Middleware
-app.use(
-  '/graphql',
-  cors(),
-  json(),
-  expressMiddleware(server, {
-    context: async ({ req, res }) => {
-      try {
-        authenticateToken(req, res, () => {});
-        return { user: req.user };
-      } catch (error) {
-        return { user: null };
-      }
-    },
-  })
-);
+  await server.start();
+  await db.openUri(process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdbname');
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+  const PORT = process.env.PORT || 3001;
+  const app = express();
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-}
+  app.use(express.urlencoded({ extended: false }));
+  app.use(express.json());
 
-// Other routes
-app.use('/api', routes);
+  app.use('/graphql', expressMiddleware(server));
 
-// Database connection and server startup
-db.once('open', () => {
-  app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
-});
+  app.listen(PORT, () => {
+    console.log(`API server running on port ${PORT}!`);
+    console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
+  });
+};
+
+// Call the async function to start the server
+startApolloServer();
