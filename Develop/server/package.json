@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
-    "watch": "nodemon dist/server.js",
+    "start": "node server/server.js",
+    "watch": "nodemon server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
