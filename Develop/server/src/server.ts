@@ -1,6 +1,6 @@
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
-import path from 'path';
+import path from 'node:path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
