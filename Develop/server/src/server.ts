@@ -55,11 +55,19 @@ const startServer = async () => {
   console.log('API routes set up');
 
   // Database connection and server startup
-  db.once('open', () => {
+  if (db.readyState === 1) {
+    console.log('Connected to MongoDB (already open)');
     app.listen(PORT, () => {
       console.log(`🌍 Now listening on http://localhost:${PORT}`);
     });
-  });
+  } else {
+    db.once('open', () => {
+      console.log('Connected to MongoDB successfully');
+      app.listen(PORT, () => {
+        console.log(`🌍 Now listening on http://localhost:${PORT}`);
+      });
+    });
+  }
 };
 
 startServer();
