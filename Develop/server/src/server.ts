@@ -46,9 +46,13 @@ const startServer = async () => {
 
   // Serve static assets in production
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/build')));
+    app.use(express.static(path.resolve('client', 'dist')));
     console.log('Serving static assets in production');
   }
+
+  app.get('*', (_req, res) => {
+    res.sendFile(path.resolve('client', 'dist', 'index.html'));
+  });
 
   // Other routes
   app.use('/api', routes);
