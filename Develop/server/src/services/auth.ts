@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
 
 import dotenv from 'dotenv';
@@ -11,7 +11,7 @@ interface JwtPayload {
   email: string,
 }
 
-export const authenticateToken = (req: Request, _res: Response, next: NextFunction) => {
+export const authenticateToken = ({ req }: { req: Request }) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
@@ -25,11 +25,9 @@ export const authenticateToken = (req: Request, _res: Response, next: NextFuncti
       }
 
       req.user = user as JwtPayload;
-      return next();
     });
-  } else {
-    throw new AuthenticationError('Authorization header must be provided');
   }
+  return req;
 };
 
 export const signToken = (username: string, email: string, _id: unknown) => {

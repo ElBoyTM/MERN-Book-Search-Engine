@@ -13,7 +13,7 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
   const [userFormData, setUserFormData] = useState<User>({ username: '', email: '', password: '', savedBooks: [] });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-  const [login, { error }] = useMutation(LOGIN_USER);
+  const [login] = useMutation(LOGIN_USER);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -35,11 +35,8 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
         variables: { email: userFormData.email, password: userFormData.password },
       });
 
-      if (error) {
-        throw new Error('something went wrong!');
-      }
-
       const { token } = data.login;
+      console.log(data);
       Auth.login(token);
     } catch (err) {
       console.error(err);

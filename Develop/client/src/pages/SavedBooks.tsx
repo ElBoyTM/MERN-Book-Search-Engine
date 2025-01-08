@@ -23,7 +23,7 @@ const SavedBooks = () => {
   userData = data?.me || {
     username: '',
     email: '',
-    password: '',
+    bookCount: '',
     savedBooks: [],
   };
 

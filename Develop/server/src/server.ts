@@ -2,8 +2,8 @@ import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import path from 'node:path';
 import dotenv from 'dotenv';
-import cors from 'cors';
-import bodyParser from 'body-parser';
+// import cors from 'cors';
+// import bodyParser from 'body-parser';
 import { expressMiddleware } from '@apollo/server/express4';
 import db from './config/connection.js';
 import { typeDefs } from './schemas/index.js';
@@ -27,22 +27,15 @@ const startServer = async () => {
   console.log('Apollo Server started');
 
   // Middleware
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
+
   app.use(
     '/graphql',
-    cors(),
-    bodyParser.json(),
     expressMiddleware(server, {
-      context: async ({ req, res }) => {
-        try {
-          authenticateToken(req, res, () => {});
-          return { user: req.user };
-        } catch (error) {
-          console.error('Error in context middleware:', error);
-          return { user: null };
-        }
-      },
-    })
-  );
+      context:
+          authenticateToken as any,
+  }));
 
   // Serve static assets in production
   if (process.env.NODE_ENV === 'production') {
