@@ -1,15 +1,14 @@
 // see SignupForm.js for comments
-import { useState } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 
-import Auth from '../utils/auth';
-import type { User } from '../models/User';
-import { LOGIN_USER } from '../utils/mutations';
+import Auth from '../utils/auth.js';
+import type { User } from '../models/User.js';
+import { LOGIN_USER } from '../utils/mutations.js';
 import { useMutation } from '@apollo/client';
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
-const LoginForm = ({}: { handleModalClose: () => void }) => {
+const LoginForm: React.FC = () => {
   const [userFormData, setUserFormData] = useState<User>({ username: '', email: '', password: '', savedBooks: [] });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);

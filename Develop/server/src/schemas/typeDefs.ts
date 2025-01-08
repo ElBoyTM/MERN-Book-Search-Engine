@@ -1,4 +1,6 @@
-const typeDefs = `
+import { gql } from 'apollo-server-express';
+
+const typeDefs = gql`
     type User {
         _id: ID!
         username: String!
@@ -15,11 +17,6 @@ const typeDefs = `
         image: String
         link: String
     }
-    
-    type Auth {
-        token: ID!
-        user: User
-    }
 
     input BookInput {
         authors: [String]
@@ -28,6 +25,11 @@ const typeDefs = `
         bookId: ID!
         image: String
         link: String
+    }
+    
+    type Auth {
+        token: ID!
+        user: User
     }
     
     type Query {
