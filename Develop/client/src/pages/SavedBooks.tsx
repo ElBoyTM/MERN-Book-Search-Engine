@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 
 import { REMOVE_BOOK } from '../utils/mutations';
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
-import type { User } from '../models/User';
+import Auth from '../utils/auth.js';
+import { removeBookId } from '../utils/localStorage.js';
+import type { User } from '../models/User.js';
 import { useQuery, useMutation } from '@apollo/client';
-import { GET_ME } from '../utils/queries';
+import { GET_ME } from '../utils/queries.js';
 
 const SavedBooks = () => {
   let [userData, setUserData] = useState<User>({
